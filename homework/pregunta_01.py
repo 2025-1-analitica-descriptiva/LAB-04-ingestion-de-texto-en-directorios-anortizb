@@ -5,6 +5,9 @@
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
 
+import zipfile
+import pandas as pd
+import os
 
 def pregunta_01():
     """
@@ -71,3 +74,35 @@ def pregunta_01():
 
 
     """
+
+    # Crear la carpeta output si no existe
+    os.makedirs('files/output', exist_ok = True)
+
+    def create_dataset(root_dir):
+        data = []
+
+        for sentiment in ['positive', 'negative', 'neutral']:
+            sentiment_path = os.path.join(root_dir, sentiment)
+
+            if os.path.exists(sentiment_path):
+
+                for filename in os.listdir(sentiment_path):
+
+                    if filename.endswith('.txt'):
+                        filepath = os.path.join(sentiment_path, filename)
+
+                        with open(filepath, 'r', encoding = 'utf-8') as f:
+                            phrase = f.read().strip()
+                        data.append({'phrase': phrase, 'target': sentiment})
+        return pd.DataFrame(data)
+
+    # Generar train_dataset.csv
+    train_df = create_dataset('files/input/train')
+    train_df.to_csv('files/output/train_dataset.csv', index = False)
+
+    # Generar test_dataset.csv
+    test_df = create_dataset('files/input/test')
+    test_df.to_csv('files/output/test_dataset.csv', index = False)
+
+if __name__ == "__main__":
+    pregunta_01()
